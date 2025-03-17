@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { useData } from "@/context/DataContext";
-import { Exercise, MuscleGroup } from "@/types";
+import { Exercise, EMuscleGroupType } from "@/types";
 import PageTransition from "@/components/ui/page-transition";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -68,6 +68,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { ExerciseResult } from "@/types/DTOs";
+
 const Exercises = () => {
   const { user } = useAuth();
   const { exercises, addExercise, updateExercise, deleteExercise } = useData();
@@ -76,8 +78,8 @@ const Exercises = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterMuscleGroup, setFilterMuscleGroup] = useState<string>("");
-  const [filteredExercises, setFilteredExercises] = useState<Exercise[]>(exercises);
+  const [filterMuscleGroup, setFilterMuscleGroup] = useState<number>(0);
+  const [filteredExercises, setFilteredExercises] = useState<ExerciseResult[]>(exercises);
 
   useEffect(() => {
     if (!user) {
@@ -88,29 +90,27 @@ const Exercises = () => {
   useEffect(() => {
     let result = exercises;
     
-    // Apply search filter
     if (searchTerm) {
       result = result.filter(exercise => 
         exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
     
-    // Apply muscle group filter
     if (filterMuscleGroup) {
       result = result.filter(exercise => 
-        exercise.muscleGroup === filterMuscleGroup
+        exercise.muscleGroupType === filterMuscleGroup
       );
     }
     
     setFilteredExercises(result);
   }, [exercises, searchTerm, filterMuscleGroup]);
 
-  const handleAddExercise = (data: { name: string; muscleGroup: MuscleGroup }) => {
+  const handleAddExercise = (data: { name: string; muscleGroupType: EMuscleGroupType }) => {
     addExercise(data);
     setIsAddDialogOpen(false);
   };
 
-  const handleEditExercise = (data: { name: string; muscleGroup: MuscleGroup }) => {
+  const handleEditExercise = (data: { name: string; muscleGroup: EMuscleGroupType }) => {
     if (editingExercise) {
       updateExercise(editingExercise.id, data);
       setEditingExercise(null);
@@ -127,7 +127,7 @@ const Exercises = () => {
 
   const resetFilters = () => {
     setSearchTerm("");
-    setFilterMuscleGroup("");
+    setFilterMuscleGroup(0);
   };
 
   if (!user) return null;
@@ -226,7 +226,7 @@ const Exercises = () => {
                     <SelectContent>
                       <SelectGroup>
                         <SelectItem value="Peito">Todos os grupos </SelectItem>
-                        {Object.values(MuscleGroup).map((group) => (
+                        {Object.values(EMuscleGroupType).map((group) => (
                           <SelectItem key={group} value={group}>
                             {group}
                           </SelectItem>
@@ -268,7 +268,7 @@ const Exercises = () => {
                           <TableRow key={exercise.id}>
                             <TableCell className="font-medium">{exercise.name}</TableCell>
                             <TableCell>
-                              <Badge variant="outline">{exercise.muscleGroup}</Badge>
+                              <Badge variant="outline">{exercise.muscleGroupTypeDescription}</Badge>
                             </TableCell>
                             <TableCell className="text-right">
                               <DropdownMenu>

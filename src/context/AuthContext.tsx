@@ -2,6 +2,9 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '@/types';
 import { toast } from '@/components/ui/use-toast';
+import axios from "axios";
+// import { User, User } from 'lucide-react';
+import Endpoints from '@/helpers/endpoints';
 
 interface AuthContextType {
   user: User | null;
@@ -9,6 +12,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  isAuthenticated: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,83 +20,54 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isAuthenticated, setisAuthenticated] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check for stored user on initial load
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       setUser(JSON.parse(storedUser));
+      setisAuthenticated(true);
     }
     setIsLoading(false);
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setIsLoading(true);
+  const login = async (emailOrUsername: string, password: string) => {
     try {
-      // This is a mock implementation - in a real app, you'd call an API
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network request
-      
-      // Simple validation for demo purposes
-      if (email === 'demo@example.com' && password === 'password') {
-        const newUser = {
-          id: '1',
-          name: 'Demo User',
-          email: 'demo@example.com'
-        };
-        
-        localStorage.setItem('user', JSON.stringify(newUser));
-        setUser(newUser);
-        toast({
-          title: "Login bem-sucedido",
-          description: "Bem-vindo de volta!",
-        });
-      } else {
-        throw new Error('Credenciais inválidas');
-      }
-    } catch (error) {
-      toast({
-        title: "Falha no login",
-        description: error instanceof Error ? error.message : "Ocorreu um erro durante o login",
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
+      const { data } = await axios.post(Endpoints.LOGIN, { emailOrUsername, password });
+
+      const user: User = {
+        userId: data.userId,
+        username: data.username,
+        email: data.email,
+        role: data.role,
+        token: data.token
+      };
+  
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Erro ao fazer login");
     }
   };
 
   const register = async (name: string, email: string, password: string) => {
-    setIsLoading(true);
     try {
-      // This is a mock implementation - in a real app, you'd call an API
-      await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network request
-      
-      // Simple validation for demo purposes
-      if (email === 'demo@example.com') {
-        throw new Error('Este email já está em uso');
-      }
-      
-      const newUser = {
-        id: Date.now().toString(),
-        name,
-        email
+      const { data } = await axios.post(Endpoints.REGISTER, { name, email, password });
+  
+      const user: User = {
+        userId: data.userId,
+        username: data.username,
+        email: data.email,
+        role: data.role,
+        token: data.token
       };
-      
-      localStorage.setItem('user', JSON.stringify(newUser));
-      setUser(newUser);
-      toast({
-        title: "Registro concluído",
-        description: "Sua conta foi criada com sucesso!",
-      });
-    } catch (error) {
-      toast({
-        title: "Falha no registro",
-        description: error instanceof Error ? error.message : "Ocorreu um erro durante o registro",
-        variant: "destructive",
-      });
-      throw error;
-    } finally {
-      setIsLoading(false);
+
+      localStorage.setItem("user", JSON.stringify(user));
+      setUser(user);
+      return user;
+    } catch (error: any) {
+      throw new Error(error.response?.data?.message || "Erro ao registrar usuário");
     }
   };
 
@@ -106,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout, isAuthenticated }}>
       {children}
     </AuthContext.Provider>
   );

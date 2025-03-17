@@ -3,7 +3,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Exercise, MuscleGroup } from "@/types";
+import { Exercise, EMuscleGroupType } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,12 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { motion } from "framer-motion";
+import { exerciseService } from "@/services/exerciseService";
 
 const formSchema = z.object({
   name: z.string().min(3, {
     message: "O nome deve ter pelo menos 3 caracteres.",
   }),
-  muscleGroup: z.nativeEnum(MuscleGroup, {
+  muscleGroup: z.nativeEnum(EMuscleGroupType, {
     required_error: "Por favor selecione um grupo muscular.",
   }),
 });
@@ -45,15 +46,19 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || "",
-      muscleGroup: initialData?.muscleGroup || undefined,
+      muscleGroup: initialData?.muscleGroupType || undefined,
     },
   });
 
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsSubmitting(true);
     try {
-      // Simulate a network request
-      await new Promise(resolve => setTimeout(resolve, 500));
+      let exerciseForm = form.getValues();
+      let exercise: Exercise = {
+        name: exerciseForm.name,
+        muscleGroupType: exerciseForm.muscleGroup
+      };
+      await exerciseService.addExercise(exercise);
       onSubmit(values);
     } finally {
       setIsSubmitting(false);
@@ -94,8 +99,8 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
               <FormItem>
                 <FormLabel>Grupo Muscular</FormLabel>
                 <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
+                  onValueChange={(value) => field.onChange(Number(value))}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -103,11 +108,16 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {Object.values(MuscleGroup).map((group) => (
-                      <SelectItem key={group} value={group}>
-                        {group}
-                      </SelectItem>
-                    ))}
+                    {Object.keys(EMuscleGroupType)
+                      .filter((key) => isNaN(Number(key))) 
+                      .map((key) => (
+                        <SelectItem
+                          key={key}
+                          value={EMuscleGroupType[key as keyof typeof EMuscleGroupType]}
+                        >
+                          {key}
+                        </SelectItem>
+                      ))}
                   </SelectContent>
                 </Select>
                 <FormMessage />

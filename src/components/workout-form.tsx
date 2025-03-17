@@ -3,7 +3,7 @@ import { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import { Workout, Exercise, WorkoutExercise, WorkoutSet, MuscleGroup } from "@/types";
+import { Workout, Exercise, WorkoutExercise, WorkoutSet, EMuscleGroupType } from "@/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -99,7 +99,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
     const newWorkoutExercise: WorkoutExercise = {
       exerciseId: exerciseToAdd.id,
       exerciseName: exerciseToAdd.name,
-      muscleGroup: exerciseToAdd.muscleGroup,
+      muscleGroupType: exerciseToAdd.muscleGroupType,
       sets: [{ weight: 0, reps: 0 }] // Start with one empty set
     };
 
@@ -221,7 +221,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                       .filter(ex => !workoutExercises.some(we => we.exerciseId === ex.id))
                       .map(exercise => (
                         <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name} ({exercise.muscleGroup})
+                          {exercise.name} ({exercise.muscleGroupType})
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -254,7 +254,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                         <div>
                           <h4 className="font-medium">{workoutExercise.exerciseName}</h4>
                           <p className="text-xs text-muted-foreground">
-                            {workoutExercise.muscleGroup}
+                            {workoutExercise.muscleGroupType}
                           </p>
                         </div>
                         <Button

@@ -1,36 +1,14 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { Exercise, Workout, MuscleGroup } from '@/types';
+import { Exercise, Workout, EMuscleGroupType } from '@/types';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from './AuthContext';
-
-// Sample initial data
-const initialExercises: Exercise[] = [
-  {
-    id: '1',
-    name: 'Supino Reto',
-    muscleGroup: MuscleGroup.CHEST,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '2',
-    name: 'Agachamento',
-    muscleGroup: MuscleGroup.LEGS,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  },
-  {
-    id: '3',
-    name: 'Barra Fixa',
-    muscleGroup: MuscleGroup.BACK,
-    createdAt: new Date(),
-    updatedAt: new Date()
-  }
-];
+import { workoutService } from '@/services/workoutService';
+import { exerciseService } from '@/services/exerciseService';
+import { ExerciseResult } from '@/types/DTOs';
 
 interface DataContextType {
-  exercises: Exercise[];
+  exercises: ExerciseResult[];
   workouts: Workout[];
   addExercise: (exercise: Omit<Exercise, 'id' | 'createdAt' | 'updatedAt'>) => void;
   updateExercise: (id: string, exercise: Partial<Omit<Exercise, 'id' | 'createdAt' | 'updatedAt'>>) => void;
@@ -44,61 +22,41 @@ const DataContext = createContext<DataContextType | undefined>(undefined);
 
 export function DataProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [exercises, setExercises] = useState<ExerciseResult[]>([]);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
 
   useEffect(() => {
-    // Load data from localStorage when user is authenticated
-    if (user) {
-      const storedExercises = localStorage.getItem(`exercises-${user.id}`);
-      const storedWorkouts = localStorage.getItem(`workouts-${user.id}`);
-      
-      if (storedExercises) {
-        setExercises(JSON.parse(storedExercises));
+    const fetchData = async () => {
+      if (user) {
+        try {
+          const storedExercises = await exerciseService.getExercises();
+          const storedWorkouts = await workoutService.getWorkouts();
+          
+          if (storedExercises) {
+            setExercises(storedExercises.items);
+          } else {
+            setExercises([]);
+          }
+          
+          if (storedWorkouts) {
+            setWorkouts(storedWorkouts.items);
+          } else {
+            setWorkouts([]);
+          }
+        } catch (error) {
+        }
       } else {
-        // Use initial data for demo purposes
-        setExercises(initialExercises);
-        localStorage.setItem(`exercises-${user.id}`, JSON.stringify(initialExercises));
-      }
-      
-      if (storedWorkouts) {
-        // Parse dates from JSON
-        const parsedWorkouts = JSON.parse(storedWorkouts);
-        parsedWorkouts.forEach((workout: any) => {
-          workout.date = new Date(workout.date);
-          workout.createdAt = new Date(workout.createdAt);
-          workout.updatedAt = new Date(workout.updatedAt);
-        });
-        setWorkouts(parsedWorkouts);
-      } else {
+        setExercises([]);
         setWorkouts([]);
       }
-    } else {
-      // Clear data when user logs out
-      setExercises([]);
-      setWorkouts([]);
-    }
+    };
+  
+    fetchData();
   }, [user]);
 
-  // Save data to localStorage whenever it changes
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(`exercises-${user.id}`, JSON.stringify(exercises));
-    }
-  }, [exercises, user]);
-
-  useEffect(() => {
-    if (user) {
-      localStorage.setItem(`workouts-${user.id}`, JSON.stringify(workouts));
-    }
-  }, [workouts, user]);
-
   const addExercise = (exercise: Omit<Exercise, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newExercise: Exercise = {
-      ...exercise,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+    const newExercise: ExerciseResult = {
+      ...exercise
     };
     
     setExercises(prev => [...prev, newExercise]);
@@ -123,7 +81,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteExercise = (id: string) => {
-    const exerciseName = exercises.find(ex => ex.id === id)?.name;
+    let exerciseName = "";
+    if(exercises){
+      exerciseName = exercises.find(ex => ex.id === id)?.name;
+    }
     setExercises(prev => prev.filter(ex => ex.id !== id));
     toast({
       title: "Exercício removido",
@@ -161,7 +122,10 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteWorkout = (id: string) => {
-    const workoutDate = workouts.find(w => w.id === id)?.date.toLocaleDateString();
+    let workoutDate = "";
+    if(workouts){
+      workoutDate = workouts.find(w => w.id === id)?.date.toLocaleDateString();
+    }
     setWorkouts(prev => prev.filter(w => w.id !== id));
     toast({
       title: "Treino removido",

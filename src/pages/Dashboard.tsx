@@ -28,14 +28,12 @@ const Dashboard = () => {
   const totalWorkouts = workouts.length;
   const totalExercises = exercises.length;
   
-  // Calculate total sets across all workouts
   const totalSets = workouts.reduce((total, workout) => {
     return total + workout.exercises.reduce((exerciseTotal, exercise) => {
       return exerciseTotal + exercise.sets.length;
     }, 0);
   }, 0);
 
-  // Get last workout date
   const lastWorkoutDate = workouts.length > 0
     ? workouts.sort((a, b) => b.date.getTime() - a.date.getTime())[0].date
     : null;
@@ -46,7 +44,7 @@ const Dashboard = () => {
       <main className="container mx-auto max-w-5xl px-4 pt-24 pb-16">
         <PageTransition>
           <div className="mb-8">
-            <h1 className="text-2xl font-bold mb-2">Olá, {user.name}</h1>
+            <h1 className="text-2xl font-bold mb-2">Olá, {user.username}</h1>
             <p className="text-muted-foreground">
               Bem-vindo à sua jornada fitness. Acompanhe seu progresso e mantenha-se motivado.
             </p>
@@ -148,7 +146,7 @@ const Dashboard = () => {
                           <li key={exercise.id} className="flex justify-between items-center p-2 hover:bg-muted/50 rounded-md">
                             <div>
                               <p className="font-medium">{exercise.name}</p>
-                              <p className="text-xs text-muted-foreground">{exercise.muscleGroup}</p>
+                              <p className="text-xs text-muted-foreground">{exercise.muscleGroupType}</p>
                             </div>
                           </li>
                         ))}

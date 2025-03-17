@@ -233,7 +233,7 @@ const Workouts = () => {
                                 <p className="font-medium">{exercise.exerciseName}</p>
                                 <div className="flex items-center mt-1">
                                   <Badge variant="outline" className="text-xs">
-                                    {exercise.muscleGroup}
+                                    {exercise.muscleGroupType}
                                   </Badge>
                                   <span className="text-xs text-muted-foreground ml-2">
                                     {exercise.sets.length} sets

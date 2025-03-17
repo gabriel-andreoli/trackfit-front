@@ -1,25 +1,31 @@
 
-export enum MuscleGroup {
-  CHEST = "Peito",
-  BACK = "Costas",
-  LEGS = "Pernas",
-  SHOULDERS = "Ombros",
-  ARMS = "Braços",
-  ABS = "Abdômen",
-  FULL_BODY = "Corpo Inteiro",
-  CARDIO = "Cardio"
+export enum EMuscleGroupType {
+  Nenhum,
+  Panturrilha,
+  Quadríceps,
+  PosteriorDePerna,
+  Abdômen,
+  Costas,
+  Peito,
+  Trapézio,
+  Ombro,
+  Bíceps,
+  Tríceps,
+  Antebraço
 }
 
 export interface User {
-  id: string;
-  name: string;
+  token: string;
+  username: string;
   email: string;
+  role: string;
+  userId: string;
 }
 
 export interface Exercise {
   id: string;
   name: string;
-  muscleGroup: MuscleGroup;
+  muscleGroupType: EMuscleGroupType;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -32,7 +38,7 @@ export interface WorkoutSet {
 export interface WorkoutExercise {
   exerciseId: string;
   exerciseName: string;
-  muscleGroup: MuscleGroup;
+  muscleGroupType: EMuscleGroupType;
   sets: WorkoutSet[];
 }
 
@@ -42,4 +48,13 @@ export interface Workout {
   exercises: WorkoutExercise[];
   createdAt: Date;
   updatedAt: Date;
+}
+
+export interface PaginatedResponse<T> {
+  total: number;
+  page: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+  items: T[];
 }

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
@@ -28,7 +28,7 @@ const formSchema = z.object({
 });
 
 const Login = () => {
-  const { login } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -40,21 +40,20 @@ const Login = () => {
     },
   });
 
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/dashboard"); 
+    }
+  }, [isAuthenticated, navigate]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     setIsLoading(true);
     try {
       await login(values.email, values.password);
       navigate("/dashboard");
     } catch (error) {
-      // Error is handled by the auth context
       setIsLoading(false);
     }
-  };
-
-  // For demo purposes - pre-fill with demo credentials
-  const fillDemoCredentials = () => {
-    form.setValue("email", "demo@example.com");
-    form.setValue("password", "password");
   };
 
   return (
@@ -114,17 +113,6 @@ const Login = () => {
             </Button>
           </form>
         </Form>
-
-        <div className="mt-6 text-center text-sm">
-          <Button
-            variant="link"
-            onClick={fillDemoCredentials}
-            className="text-primary"
-            type="button"
-          >
-            Usar credenciais de demonstração
-          </Button>
-        </div>
 
         <div className="mt-6 text-center text-sm">
           <p className="text-muted-foreground">
