@@ -1,0 +1,176 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 210 20% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 215 100% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 215 100% 50%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 222 47% 11%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 215 100% 50%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 17%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 217 33% 17%;
+    --accent-foreground: 210 40% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 17%;
+    --input: 217 33% 17%;
+    --ring: 215 100% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer utilities {
+  .glass {
+    @apply bg-white/70 dark:bg-black/70 backdrop-blur-md backdrop-saturate-150 border border-white/20 dark:border-black/20 shadow-glass;
+  }
+  
+  .glass-card {
+    @apply glass rounded-2xl;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Global animations */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+
+/* Base element refinements */
+input, textarea, select {
+  @apply transition-all duration-200;
+}
+
+button {
+  @apply transition-all duration-200;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/30 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/50;
+}
+
+/* Import Montserrat font */
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400&display=swap') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://fonts.googleapis.com/css2?family=Montserrat:wght@500&display=swap') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://fonts.googleapis.com/css2?family=Montserrat:wght@600&display=swap') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Montserrat';
+  src: url('https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
