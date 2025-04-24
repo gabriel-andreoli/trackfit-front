@@ -69,11 +69,14 @@ import {
 } from "@/components/ui/select";
 
 import { ExerciseResult } from "@/types/DTOs";
+import { exerciseService } from "@/services/exerciseService";
 
 const Exercises = () => {
   const { user } = useAuth();
   const { exercises, addExercise, updateExercise, deleteExercise } = useData();
   const navigate = useNavigate();
+  const [refresh, setRefresh] = useState(false);
+
 
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
@@ -88,37 +91,51 @@ const Exercises = () => {
   }, [user, navigate]);
 
   useEffect(() => {
-    let result = exercises;
-    
-    if (searchTerm) {
-      result = result.filter(exercise => 
-        exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    }
-    
-    if (filterMuscleGroup) {
-      result = result.filter(exercise => 
-        exercise.muscleGroupType === filterMuscleGroup
-      );
-    }
-    
-    setFilteredExercises(result);
-  }, [exercises, searchTerm, filterMuscleGroup]);
+
+    const fetchExercises = async () => {
+      let result = await getAllExercises();
+
+      if (searchTerm) {
+        result = result.filter(exercise =>
+          exercise.name.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      if (filterMuscleGroup) {
+        result = result.filter(exercise =>
+          exercise.muscleGroupType === filterMuscleGroup
+        );
+      }
+
+      setFilteredExercises(result);
+    };
+
+    fetchExercises();
+  }, [searchTerm, filterMuscleGroup, refresh]);
+
+  const getAllExercises = async () => {
+    const response = await exerciseService.getExercises();
+    return response.items;
+  };
 
   const handleAddExercise = (data: { name: string; muscleGroupType: EMuscleGroupType }) => {
     addExercise(data);
     setIsAddDialogOpen(false);
+    setTimeout(() => setRefresh(!refresh));
   };
 
-  const handleEditExercise = (data: { name: string; muscleGroup: EMuscleGroupType }) => {
+  const handleEditExercise = (data: { name: string; muscleGroupType: EMuscleGroupType }) => {
     if (editingExercise) {
       updateExercise(editingExercise.id, data);
       setEditingExercise(null);
+      setTimeout(() => setRefresh(!refresh));
     }
   };
 
   const handleDeleteExercise = (id: string) => {
+    console.log("ESSE é O ID", id);
     deleteExercise(id);
+    setTimeout(() => setRefresh(!refresh));
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {

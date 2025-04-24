@@ -28,7 +28,7 @@ const formSchema = z.object({
   name: z.string().min(3, {
     message: "O nome deve ter pelo menos 3 caracteres.",
   }),
-  muscleGroup: z.nativeEnum(EMuscleGroupType, {
+  muscleGroupType: z.nativeEnum(EMuscleGroupType, {
     required_error: "Por favor selecione um grupo muscular.",
   }),
 });
@@ -46,7 +46,7 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: initialData?.name || "",
-      muscleGroup: initialData?.muscleGroupType || undefined,
+      muscleGroupType: initialData?.muscleGroupType || undefined,
     },
   });
 
@@ -56,7 +56,7 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
       let exerciseForm = form.getValues();
       let exercise: Exercise = {
         name: exerciseForm.name,
-        muscleGroupType: exerciseForm.muscleGroup
+        muscleGroupType: exerciseForm.muscleGroupType
       };
       await exerciseService.addExercise(exercise);
       onSubmit(values);
@@ -94,7 +94,7 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
 
           <FormField
             control={form.control}
-            name="muscleGroup"
+            name="muscleGroupType"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Grupo Muscular</FormLabel>

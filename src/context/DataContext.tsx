@@ -24,6 +24,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
   const [exercises, setExercises] = useState<ExerciseResult[]>([]);
   const [workouts, setWorkouts] = useState<Workout[]>([]);
+  const [actionRefresh, setActionRefresh] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -52,7 +53,7 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
     };
   
     fetchData();
-  }, [user]);
+  }, [user, actionRefresh]);
 
   const addExercise = (exercise: Omit<Exercise, 'id' | 'createdAt' | 'updatedAt'>) => {
     const newExercise: ExerciseResult = {
@@ -64,32 +65,35 @@ export function DataProvider({ children }: { children: React.ReactNode }) {
       title: "Exercício adicionado",
       description: `${newExercise.name} foi adicionado com sucesso.`
     });
+    setActionRefresh(!actionRefresh);
   };
 
   const updateExercise = (id: string, exercise: Partial<Omit<Exercise, 'id' | 'createdAt' | 'updatedAt'>>) => {
-    setExercises(prev => 
-      prev.map(ex => 
-        ex.id === id 
-          ? { ...ex, ...exercise, updatedAt: new Date() } 
-          : ex
-      )
-    );
-    toast({
-      title: "Exercício atualizado",
-      description: "As alterações foram salvas com sucesso."
-    });
+    if(exercises){
+      exerciseService.updateExercise(id, exercise);
+      toast({
+        title: "Exercício atualizado",
+        description: "As alterações foram salvas com sucesso."
+      });
+      setActionRefresh(!actionRefresh);
+    }
   };
 
   const deleteExercise = (id: string) => {
     let exerciseName = "";
     if(exercises){
-      exerciseName = exercises.find(ex => ex.id === id)?.name;
+      let exerciseToDelete = exercises.find(ex => ex.id === id);
+      if(exerciseToDelete){
+        exerciseName = exerciseToDelete.name;
+        exerciseService.deleteExercise(id);
+        setExercises(prev => prev.filter(ex => ex.id !== id));
+        toast({
+          title: "Exercício removido",
+          description: exerciseName ? `${exerciseName} foi removido.` : "O exercício foi removido."
+        });
+        setActionRefresh(!actionRefresh);
+      }
     }
-    setExercises(prev => prev.filter(ex => ex.id !== id));
-    toast({
-      title: "Exercício removido",
-      description: exerciseName ? `${exerciseName} foi removido.` : "O exercício foi removido."
-    });
   };
 
   const addWorkout = (workout: Omit<Workout, 'id' | 'createdAt' | 'updatedAt'>) => {
