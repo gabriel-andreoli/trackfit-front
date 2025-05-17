@@ -100,7 +100,8 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
       exerciseId: exerciseToAdd.id,
       exerciseName: exerciseToAdd.name,
       muscleGroupType: exerciseToAdd.muscleGroupType,
-      sets: [{ weight: 0, reps: 0 }] // Start with one empty set
+      muscleGroupTypeDescription: exerciseToAdd.muscleGroupTypeDescription,
+      sets: [{ weight: null, reps: null }] // Start with one empty set
     };
 
     setWorkoutExercises([...workoutExercises, newWorkoutExercise]);
@@ -116,7 +117,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
       if (we.exerciseId === exerciseId) {
         return {
           ...we,
-          sets: [...we.sets, { weight: 0, reps: 0 }]
+          sets: [...we.sets, { weight: null, reps: null }]
         };
       }
       return we;
@@ -221,7 +222,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                       .filter(ex => !workoutExercises.some(we => we.exerciseId === ex.id))
                       .map(exercise => (
                         <SelectItem key={exercise.id} value={exercise.id}>
-                          {exercise.name} ({exercise.muscleGroupType})
+                          {exercise.name} ({exercise.muscleGroupTypeDescription})
                         </SelectItem>
                       ))}
                   </SelectContent>
@@ -254,7 +255,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                         <div>
                           <h4 className="font-medium">{workoutExercise.exerciseName}</h4>
                           <p className="text-xs text-muted-foreground">
-                            {workoutExercise.muscleGroupType}
+                            {workoutExercise.muscleGroupTypeDescription}
                           </p>
                         </div>
                         <Button
@@ -282,6 +283,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                               </p>
                               <div className="flex-1 flex gap-2">
                                 <div className="flex-1">
+                                  {/* <p className="text-sm text-muted-foreground">Peso (kg)</p> */}
                                   <Input
                                     type="number"
                                     placeholder="Peso (kg)"
@@ -292,7 +294,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                                         workoutExercise.exerciseId,
                                         setIndex,
                                         "weight",
-                                        isNaN(val) ? 0 : val
+                                        val
                                       );
                                     }}
                                     className="text-sm"
@@ -300,6 +302,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                                   />
                                 </div>
                                 <div className="flex-1">
+                                {/* <p className="text-sm text-muted-foreground">Reps</p> */}
                                   <Input
                                     type="number"
                                     placeholder="Reps"
@@ -310,7 +313,7 @@ export function WorkoutForm({ initialData, onSubmit, onCancel }: WorkoutFormProp
                                         workoutExercise.exerciseId,
                                         setIndex,
                                         "reps",
-                                        isNaN(val) ? 0 : val
+                                        val
                                       );
                                     }}
                                     className="text-sm"

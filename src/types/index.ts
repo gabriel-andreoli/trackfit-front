@@ -39,6 +39,7 @@ export interface WorkoutExercise {
   exerciseId: string;
   exerciseName: string;
   muscleGroupType: EMuscleGroupType;
+  muscleGroupTypeDescription: string,
   sets: WorkoutSet[];
 }
 

@@ -37,9 +37,10 @@ interface ExerciseFormProps {
   initialData?: Partial<Exercise>;
   onSubmit: (data: z.infer<typeof formSchema>) => void;
   onCancel: () => void;
+  id: string;
 }
 
-export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormProps) {
+export function ExerciseForm({ initialData, onSubmit, onCancel, id }: ExerciseFormProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -58,7 +59,13 @@ export function ExerciseForm({ initialData, onSubmit, onCancel }: ExerciseFormPr
         name: exerciseForm.name,
         muscleGroupType: exerciseForm.muscleGroupType
       };
-      await exerciseService.addExercise(exercise);
+      if(id){
+        await exerciseService.updateExercise(id, exercise);
+      }else{
+        await exerciseService.addExercise(exercise);
+      }
+      
+  
       onSubmit(values);
     } finally {
       setIsSubmitting(false);

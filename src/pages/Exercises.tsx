@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -119,23 +118,24 @@ const Exercises = () => {
   };
 
   const handleAddExercise = (data: { name: string; muscleGroupType: EMuscleGroupType }) => {
-    addExercise(data);
-    setIsAddDialogOpen(false);
-    setTimeout(() => setRefresh(!refresh));
+    if (!editingExercise) {
+      addExercise(data);
+      setIsAddDialogOpen(false);
+      setRefresh(!refresh);
+    }
   };
 
   const handleEditExercise = (data: { name: string; muscleGroupType: EMuscleGroupType }) => {
     if (editingExercise) {
       updateExercise(editingExercise.id, data);
       setEditingExercise(null);
-      setTimeout(() => setRefresh(!refresh));
+      setRefresh(!refresh);
     }
   };
 
   const handleDeleteExercise = (id: string) => {
-    console.log("ESSE é O ID", id);
     deleteExercise(id);
-    setTimeout(() => setRefresh(!refresh));
+    setRefresh(!refresh);
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -201,6 +201,7 @@ const Exercises = () => {
                   initialData={editingExercise}
                   onSubmit={handleEditExercise}
                   onCancel={() => setEditingExercise(null)}
+                  id={editingExercise.id}
                 />
               )}
             </DialogContent>
@@ -242,12 +243,14 @@ const Exercises = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectGroup>
-                        <SelectItem value="Peito">Todos os grupos </SelectItem>
-                        {Object.values(EMuscleGroupType).map((group) => (
-                          <SelectItem key={group} value={group}>
-                            {group}
-                          </SelectItem>
-                        ))}
+                        <SelectItem value={0}>Todos os grupos</SelectItem>
+                        {Object.values(EMuscleGroupType)
+                          .filter(value => typeof value === 'number')
+                          .map((group) => (
+                            <SelectItem key={group} value={group}>
+                              {EMuscleGroupType[group]}
+                            </SelectItem>
+                          ))}
                       </SelectGroup>
                     </SelectContent>
                   </Select>
